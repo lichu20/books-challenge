@@ -21,11 +21,14 @@
           <button type="submit" class="btn btn-secondary">Search</button>
         </div>
       </form>
-
-
-    <div class="list-group">
-      
-    </div>
+    
+      <div class="list-group">
+        <% books.forEach(function(books) { %>
+          <a href="/books/detail/<%=books.id%>"><%= books.title %></a>
+          <img class="d-block" src="/img/<%= books.cover %>" width="100"/>
+          <p><%=books.description%></p>
+        <% }) %>
+      </div>
   </div>
 </div>
 

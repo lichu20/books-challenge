@@ -1,5 +1,11 @@
 const bcryptjs = require('bcryptjs');
 const db = require('../database/models');
+const { ExpressValidator } = require('express-validator');
+//const { where } = require('sequelize');
+const Op = db.Sequelize.Op
+
+const { validationResult } = require('express-validator')
+
 
 const mainController = {
   home: (req, res) => {
@@ -12,19 +18,25 @@ const mainController = {
       .catch((error) => console.log(error));
   },
   bookDetail: (req, res) => {
-    // Implement look for details in the database
-    res.render('bookDetail');
+    db.Book.findByPk(req.params.id, {include: [{ association: 'authors' }]})
+      .then((book)=> {
+        res.render('bookDetail', {book: book});
+      })
   },
   bookSearch: (req, res) => {
     res.render('search', { books: [] });
   },
   bookSearchResult: (req, res) => {
-    // Implement search by title
-    res.render('search');
-  },
-  deleteBook: (req, res) => {
-    // Implement delete book
-    res.render('home');
+    db.Book.findAll({ where: {title: {[Op.like]: `%${req.body.title}%`}}})
+    .then((books) => {res.render('search', {books: books})});
+    },
+  deleteBook: async(req, res) => {
+    await db.Book.destroy({
+      where: {
+        id: req.params.id
+      },
+    })
+    res.redirect('/')
   },
   authors: (req, res) => {
     db.Author.findAll()
@@ -35,13 +47,16 @@ const mainController = {
   },
   authorBooks: (req, res) => {
     // Implement books by author
-    res.render('authorBooks');
+    db.Author.findByPk(req.params.id, {include: [{association: 'books'}]})
+    .then((author) => {
+        res.render('authorBooks', {author});
+      })
   },
   register: (req, res) => {
     res.render('register');
   },
-  processRegister: (req, res) => {
-    db.User.create({
+  processRegister: async (req, res) => {
+    /*db.User.create({
       Name: req.body.name,
       Email: req.body.email,
       Country: req.body.country,
@@ -51,23 +66,113 @@ const mainController = {
       .then(() => {
         res.redirect('/');
       })
-      .catch((error) => console.log(error));
+      .catch((error) => console.log(error));*/
+      let resultValidation = validationResult(req);
+      try {
+        let user = await db.User.findOne({
+            where:{email: req.body.email}
+        })
+  
+        if(!user){
+          if (!resultValidation.errors.length > 0) {
+            db.User.create({
+              Name: req.body.name,
+              Email: req.body.email,
+              Country: req.body.country,
+              Pass: bcryptjs.hashSync(req.body.password, 10),
+              CategoryId: req.body.category
+            })
+            return res.redirect('/users/login');
+          } else {
+            return res.render('register',{
+              errors: resultValidation.mapped()
+            });
+          }
+        }else{
+          return res.render('register',{
+            errors: {
+              email: {msg: 'El email ya existe, intente con uno nuevo'}
+            }
+          })
+        }
+    } catch (error) {
+        console.log(error)
+    }
   },
   login: (req, res) => {
     // Implement login process
     res.render('login');
   },
-  processLogin: (req, res) => {
+  processLogin: async (req, res) => {
+    let resultValidationLogin = validationResult(req);
     // Implement login process
-    res.render('home');
+    try {
+      let user = await db.User.findOne({
+          where:{email: req.body.email}
+      })
+
+      if(user){
+        if (!resultValidationLogin.errors.length > 0) {
+          let passVerificada = bcryptjs.compareSync(req.body.password, user.Pass);
+          if (passVerificada){
+            delete user.Pass
+            req.session.user = user;
+
+            if (req.body.remember) {
+              res.cookie('userEmail', req.body.email, {maxAge: 1000*60*60*24})
+            }
+
+            return res.redirect('/');
+          }
+          return res.render('login',{
+            errors: {
+              password: {msg: 'La contraseña no es correcta'}
+            }
+          })
+        } else{
+          return res.render('login',{
+            errors: resultValidationLogin.mapped()
+          });
+        }
+      }else{
+          return res.render('login',{
+            errors: {
+              email: {msg: 'El email no es correcto'}
+            }
+          })
+      }
+  } catch (error) {
+      console.log(error)
+  }
   },
   edit: (req, res) => {
     // Implement edit book
-    res.render('editBook', {id: req.params.id})
+    db.Book.findByPk(req.params.id)
+      .then((book)=> {
+        res.render('editBook', {book: book});
+      })
   },
   processEdit: (req, res) => {
     // Implement edit book
-    res.render('home');
+    //let book = db.Book.findByPk(req.params.id);  
+    db.Book.update(
+      {
+        title: req.body.title,
+        cover: req.file.filename,
+        description: req.body.description
+      },
+    {
+      where: {
+        id: req.params.id
+      }
+    }).then(()=>{
+      return res.redirect('/');
+    })
+    
+  }, 
+  logout: (req, res) => {
+    req.session.destroy();
+    return res.redirect('/');
   }
 };
 

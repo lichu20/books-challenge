@@ -18,10 +18,16 @@
         <div class="col-xl-9">
   
           <h1 class="text-white mb-4">Register a new user</h1>
-  
           <form action="/users/register" method="POST" class="card" style="border-radius: 15px;">
             <div class="card-body">
-  
+              <div class = "errores">
+                <ul></ul>    
+              </div>
+              <% if (locals.errors) { %>
+                <% for (let oneError in errors) { %>
+                  <p> <%= errors[oneError].msg %></p>
+                <% } %>
+              <% } %>
               <div class="row align-items-center pt-4 pb-3">
                 <div class="col-md-3 ps-5">
   
@@ -30,7 +36,7 @@
                 </div>
                 <div class="col-md-9 pe-5">
   
-                  <input type="text" name="name" class="form-control form-control-lg" />
+                  <input type="text" name="name" id="name" class="form-control form-control-lg" />
   
                 </div>
               </div>
@@ -45,8 +51,12 @@
                 </div>
                 <div class="col-md-9 pe-5">
   
-                  <input type="email" name="email" class="form-control form-control-lg" placeholder="example@gmail.com" />
-  
+                  <input type="email" name="email" id="email" class="form-control form-control-lg" placeholder="example@gmail.com" />
+                  <% if (locals.errors && errors.email) { %>
+                    <div>
+                      <%= errors.email.msg %>
+                    </div>
+                  <% } %>
                 </div>
               </div>
   
@@ -60,7 +70,7 @@
                 </div>
                 <div class="col-md-9 pe-5">
   
-                  <input type="text" name="country" class="form-control form-control-lg" placeholder="Argentina" />
+                  <input type="text" name="country" id="country" class="form-control form-control-lg" placeholder="Argentina" />
   
                 </div>
               </div>
@@ -75,7 +85,7 @@
                 </div>
                 <div class="col-md-9 pe-5">
   
-                  <input type="password" name="password" class="form-control form-control-lg" >
+                  <input type="password" name="password" id="password" class="form-control form-control-lg" >
   
                 </div>
               </div>
@@ -113,5 +123,6 @@
   </section>
 </div>
 <%- include('partials/footer.ejs') %>
+<script src="/js/validationRegister.js"></script>
 </body>
 </html>

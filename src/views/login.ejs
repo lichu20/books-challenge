@@ -18,10 +18,19 @@
         <div class="col-xl-6">
   
           <h1 class="text-white mb-4">Login </h1>
-  
+      
           <form action="/users/login" method="POST" class="card" style="border-radius: 15px;">
             <div class="card-body">
-  
+              <div class = "errores">
+                <ul></ul>    
+              </div>
+              <div>
+                <% if (locals.errors) { %>
+                  <% for (let oneError in errors) { %>
+                    <p> <%= errors[oneError].msg %></p>
+                  <% } %>
+                <% } %>
+              </div>
               <div class="row align-items-center pt-4 pb-3">
                 <div class="col-md-3 ps-5">
   
@@ -30,8 +39,12 @@
                 </div>
                 <div class="col-md-9 pe-5">
   
-                  <input type="email" name="email" class="form-control form-control-lg" placeholder="example@gmail.com" />
-  
+                  <input type="email" name="email" id="email" class="form-control form-control-lg" placeholder="example@gmail.com" />
+                  <% //if (locals.errors && errors.email) { %>
+                    <div>
+                      <%= //errors.email.msg %>
+                    </div>
+                  <% //} %>
                 </div>
               </div>
   
@@ -45,9 +58,17 @@
                 </div>
                 <div class="col-md-9 pe-5">
   
-                  <input type="password" name="password" class="form-control form-control-lg" >
-  
+                  <input type="password" name="password" id="password" class="form-control form-control-lg" >
+                  <% //if (locals.errors && errors.password) { %>
+                    <div>
+                      <%= //errors.password.msg %>
+                    </div>
+                  <% //} %>
                 </div>
+                <label for="">
+                  <input type="checkbox" class="remember" name="remember">Recordarme
+                </label>
+                
               </div>
   
               <hr class="mx-n3">
@@ -65,5 +86,6 @@
   </section>
 </div>
 <%- include('partials/footer.ejs') %>
+<script src="/js/validationLogin.js"></script>
 </body>
 </html>
