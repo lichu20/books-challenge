@@ -3,7 +3,7 @@ const mainRouter = require('./routes/main');
 const session = require('express-session');
 const cookie = require('cookie-parser');
 
-const usuario = require('./middlewares/session')
+const usuario = require('./middlewares/cookieUser')
 
 const app = express();
 

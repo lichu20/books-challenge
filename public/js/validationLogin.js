@@ -8,7 +8,7 @@ window.addEventListener('load', function(){
 
         let email = document.querySelector('#email')
         if(email.value == ''){
-            errors.push('El imail debe ser válido')
+            errors.push('El email debe ser válido')
         }
 
         let password = document.querySelector('#password')

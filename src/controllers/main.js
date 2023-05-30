@@ -106,7 +106,7 @@ const mainController = {
   processLogin: async (req, res) => {
     let resultValidationLogin = validationResult(req);
     // Implement login process
-    try {
+    //try {
       let user = await db.User.findOne({
           where:{email: req.body.email}
       })
@@ -119,7 +119,7 @@ const mainController = {
             req.session.user = user;
 
             if (req.body.remember) {
-              res.cookie('userEmail', req.body.email, {maxAge: 1000*60*60*24})
+              res.cookie('userEmail', req.body.email, {maxAge: (1000*60)*60})
             }
 
             return res.redirect('/');
@@ -141,9 +141,9 @@ const mainController = {
             }
           })
       }
-  } catch (error) {
+  /* } catch (error) {
       console.log(error)
-  }
+  } */
   },
   edit: (req, res) => {
     // Implement edit book
@@ -171,6 +171,7 @@ const mainController = {
     
   }, 
   logout: (req, res) => {
+    res.clearCookie('userEmail')
     req.session.destroy();
     return res.redirect('/');
   }

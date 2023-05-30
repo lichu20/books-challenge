@@ -32,7 +32,7 @@ router.get('/authors/:id/books', mainController.authorBooks);
 router.get('/users/register', guestMiddleware, mainController.register);
 router.post('/users/register', registerValidations, mainController.processRegister);
 router.get('/users/login', guestMiddleware, mainController.login);
-router.post('/users/login', loginValidations, mainController.processLogin);
+router.post('/users/login', loginValidations, guestMiddleware, mainController.processLogin);
 router.delete('/books/:id', sessionUser, mainController.deleteBook);
 router.get('/books/edit/:id', sessionUser, mainController.edit);
 router.put('/books/edit/:id', upload.single('cover'), mainController.processEdit);
